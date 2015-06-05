@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Sprinklers</title>
+<style>
+button, body { font-size: 15pt; }
+.on, .off { padding-left: 5pt; padding-right: 5pt; }
+.on { background-color: red; }
+.off { background-color: green; }
+#b1 { position: absolute; left: 199px; top: 251px; }
+#b2 { position: absolute; left: 430px; top: 140px; }
+#b3 { position: absolute; left: 307px; top: 210px; }
+#b4 { position: absolute; left: 441px; top: 180px; }
+#b5 { position: absolute; left: 480px; top: 100px; }
+#b6 { position: absolute; left: 130px; top: 260px; }
+#b7 { position: absolute; left: 70px; top: 320px; }
+#b8 { position: absolute; left: 100px; top: 320px; }
+body { background-image: url('house1.jpg'); background-repeat: no-repeat; background-color: #9f9; }
+</style>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script language=javascript >
+function cl(obj)
+{
+	var chan = obj.id.substring(1,2);
+	var val = 1;
+	var cl = $('#'+obj.id).attr('class');
+	if (cl == 'on') val = 0;
+	$.post("json.cgi",
+		{ "chan": chan, "val": val },
+		stat,
+		"json");
+
+}
+
+function stat(data)
+{
+$('#b1').attr('class',data[0]);
+$('#b2').attr('class',data[1]);
+$('#b3').attr('class',data[2]);
+$('#b4').attr('class',data[3]);
+$('#b5').attr('class',data[4]);
+$('#b6').attr('class',data[5]);
+$('#b7').attr('class',data[6]);
+$('#b8').attr('class',data[7]);
+}
+
+$(document).ready(function() {
+	$.post("json.cgi",
+		{ "query": 1 },
+		stat,
+		"json");
+});
+
+</script>
+
+</head>
+<body>
+<button id=b1 onclick="cl(this);" >1</button>
+<button id=b2 onclick="cl(this);" >2</button>
+<button id=b3 onclick="cl(this);" >3</button>
+<button id=b4 onclick="cl(this);" >4</button>
+<button id=b5 onclick="cl(this);" >5</button>
+<button id=b6 onclick="cl(this);" >6</button>
+<button id=b7 onclick="cl(this);" >7</button>
+<button id=b8 onclick="cl(this);" >8</button>
+</body>
+</html>
+
