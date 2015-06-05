@@ -16,7 +16,7 @@ button, body { font-size: 15pt; }
 #b8 { position: absolute; left: 100px; top: 320px; }
 body { background-image: url('house1.jpg'); background-repeat: no-repeat; background-color: #9f9; }
 </style>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="zepto.min.js"></script>
 <script language=javascript >
 function cl(obj)
 {
@@ -43,7 +43,7 @@ $('#b7').attr('class',data[6]);
 $('#b8').attr('class',data[7]);
 }
 
-$(document).ready(function() {
+$(function() {
 	$.post("json.cgi",
 		{ "query": 1 },
 		stat,
