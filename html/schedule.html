@@ -1,0 +1,287 @@
+<html>
+<head>
+<title>Sprinkler Schedule</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="pikaday.css">
+<link rel="stylesheet" href="timePicker.css">
+<script src="jquery.min.js"></script>
+<script src="jquery.timePicker.min.js"></script>
+<script src="addclear.min.js"></script>
+<script src="pikaday.min.js"></script>
+<script>
+$(function() {
+
+	getscheds();
+
+	$('#add').click(function(event) {
+		$('#proto').clone().insertAfter("#proto").attr('id','sched').attr('sched','yes').show();
+		initBlocks();
+	});
+
+	$('#bmain').click(function(event) {
+		location.href='/';
+	});
+
+	
+	$('#load').click(function(event) {
+		$('[sched]').remove();
+		//var data = {"schedules":[{"zone":1,"start":1433662317 ,"end":0,"time":1800,"duration":900,"repeat":3,"dow":124},{"zone":2,"start":0,"end":0,"time":18900,"duration":900,"repeat":1,"dow":127}]};
+		//rxdata(data);
+		getscheds();
+	});
+	
+	$('#save').click(function(event) {
+		var errors = 0;
+		var res = { schedules: [] };
+		$('[sched]').each(function() {
+		
+			var dow = 0;
+			if ($(this).find('[name=dow1]').attr('checked')) dow += 1;
+			if ($(this).find('[name=dow2]').attr('checked')) dow += 2;
+			if ($(this).find('[name=dow3]').attr('checked')) dow += 4;
+			if ($(this).find('[name=dow4]').attr('checked')) dow += 8;
+			if ($(this).find('[name=dow5]').attr('checked')) dow += 16;
+			if ($(this).find('[name=dow6]').attr('checked')) dow += 32;
+			if ($(this).find('[name=dow7]').attr('checked')) dow += 64;
+			obj = {
+				zone: parseInt($(this).find('[name=zone]').val()),
+				start: $(this).find('[name=startdate]').attr('vv')/1000,
+				end: $(this).find('[name=enddate]').attr('vv')/1000,
+				time: $(this).find('[name=time]').attr('vv')/1000,
+				duration: $(this).find('[name=duration]').attr('vv')/1000,
+				repeat: parseInt($(this).find('[name=repeat]').val()),
+				dow: dow 
+			}
+			res.schedules.push(obj);
+			
+		});
+		
+		if ($('.invalid').text())
+		{
+			alert("There is some invalid data entered.");
+		}
+		else
+		{
+//			alert( JSON.stringify(res) );
+			$('[sched]').remove();
+			$('#saving').show();
+			$.ajax({
+				url: 'sched.cgi',
+				type: "POST",
+				data: JSON.stringify(res),
+				contentType: "application/json",
+				dataType: 'json',
+				success: rxdata
+			});
+		}
+		
+	});
+	
+});
+
+function getscheds()
+{
+	$.ajax({
+		url: 'sched.cgi',
+		type: "POST",
+		data: "{}",
+		contentType: "application/json",
+		dataType: 'json',
+		success: rxdata
+	});
+}
+
+function fixtime(s)
+{
+	m = parseInt(s);
+	m = parseInt(m / 60);
+	h = parseInt(m / 60);
+	m = m - h * 60;
+	if (m < 10) m = '0'+m;
+	if (h < 10) h = '0'+h;
+	return (h+':'+m);
+}
+function fixdate(s)
+{
+	t = parseInt(s) * 1000;
+	if (t == 0) return("");
+	d = new Date(t);
+	return(d.toDateString());
+}
+
+function rxdata(data)
+{
+//	alert(JSON.stringify(data));
+	
+	$('#saving').hide();
+	$('[sched]').remove();
+	
+	if (data.time)
+	{
+		var t = data.time;
+		if (t > (300 * 86400))
+		{
+			var d = new Date(t*1000);
+			$('#curtime').text('Device Time: '+d.toString());
+		}
+	}
+	if (data.name)
+	{
+		$('#devname').text('Device Name: '+data.name);
+	}
+	if (data.schedules)
+	{
+		var id = '#proto';
+		for (var i=0; i < data.schedules.length; i++)
+		{
+			var s = data.schedules[i];
+			var e = $('#proto').clone().insertAfter(id).attr('id','sched'+i).attr('sched','yes').show();
+			id = '#sched'+i;
+			$(id).find('[name=zone]').val( s.zone );		
+			$(id).find('[name=repeat]').val( s.repeat );
+			$(id).find('[name=time]').val( fixtime(s.time) );
+			$(id).find('[name=duration]').val( fixtime(s.duration) );
+			$(id).find('[name=startdate]').val( fixdate(s.start) );		
+			$(id).find('[name=enddate]').val( fixdate(s.end) );		
+			$(id).find('[name=dow1]').attr('checked',s.dow & 1);
+			$(id).find('[name=dow2]').attr('checked',s.dow & 2);
+			$(id).find('[name=dow3]').attr('checked',s.dow & 4);
+			$(id).find('[name=dow4]').attr('checked',s.dow & 8);
+			$(id).find('[name=dow5]').attr('checked',s.dow & 16);
+			$(id).find('[name=dow6]').attr('checked',s.dow & 32);
+			$(id).find('[name=dow7]').attr('checked',s.dow & 64);
+					
+		}
+		initBlocks();		
+	}
+	
+}
+function initBlocks(element)
+{
+
+	$('.delete').unbind('click').click(function(event) {
+		$(event.target).parents('[sched]').remove();
+	});
+	
+	
+	$('.date').each(function(index) {
+		var picker = new Pikaday(
+		{
+			field: $(this).get(0),
+			firstDay: 0,
+			minDate: new Date('2000-01-01'),
+			maxDate: new Date('2020-12-31'),
+			yearRange: [2000,2020]
+		});
+	});
+	$('.date').addClear();
+	$('.date').unbind('blur').blur(function(event) {
+		$(this).parents('td').find('.invalid').text('');
+		var v = $(this).val();
+		if (v == '') v = 0;
+		else 
+		{
+			v = Date.parse(v);
+			if (!v) 
+			{
+				$(this).parents('td').find('.invalid').text('Invalid Date');
+			}
+		}
+		$(this).attr('vv',v);
+	});
+	$('.date').trigger('blur');
+	
+	
+	$('.time').timePicker({
+			step: 15
+		});
+	$('.duration').timePicker({
+			startTime: "00:01",
+			endTime: "4:00",
+			step: 1
+		});
+	$('.duration,.time').unbind('blur').blur(function(event) {
+		$(this).parents('td').find('.invalid').text('');
+		var v = $(this).val();
+		//alert(v);
+		if (v == '') v = 0;
+		else 
+		{	
+			v = Date.parse('Jan 1 2015 ' + v + ':00');
+			vb = Date.parse('Jan 1 2015 00:00:00');
+			v = v - vb;
+			if (!v) 
+			{
+				$(this).parents('td').find('.invalid').text('Invalid Time');
+			}
+		}
+		$(this).attr('vv',v);
+	});
+	$('.duration,.time').trigger('blur');
+
+
+}
+
+</script>
+
+</head>
+<body>
+<div id=main class=alt>
+<button id=add>Add New Schedule Item</button> | <button id=load>Load Schedule</button> | <button id=save>Save Schedule</button> | <button id=bmain>Main Page</button>
+<p><span id=devname></span>
+<br><span id=curtime></span>
+</p>
+<div id=saving class=sched style="display:none">
+<center>Saving....</center>
+</div>
+<div id=proto class=sched style="display:none">
+<table class=schedtable>
+<tr><td>Zone:</td><td><select class="zone" title="Which Zone to turn on." name="zone">
+<option value="1">Zone 1</option>
+<option value="2">Zone 2</option>
+<option value="3">Zone 3</option>
+<option value="4">Zone 4</option>
+<option value="5">Zone 5</option>
+<option value="6">Zone 6</option>
+<option value="7">Zone 7</option>
+<option value="8">Zone 8</option>
+<option value="100">Reset</option>
+<option value="101">All Off</option>
+</select>
+</td>
+<td> </td><td><button title="Delete this item" class="delete" >&#10006;</button></td></tr>
+<tr><td>Start Date:</td><td><input class="date" title="When to start. Leave blank for today." type="text" name="startdate" size="20" value=""> <span class="invalid"></span></td>
+<td>End Date:</td><td><input class="date" title="When to stop. Leave blank for no end." type="text" name="enddate" size="20" value=""> <span class="invalid"></span></td></tr>
+<tr><td>Time:</td><td><input class="time" title="What time to start." type="text" name="time" size=6 value="05:00"> <span class="invalid"></span></td>
+<td>Duration:</td><td><input class="duration" title="How long to remain on." type="text" name="duration" size=6 value="00:15"> <span class="invalid"></span></td></tr>
+<tr><td>Repeat Every:</td><td><select class="repeat" title="Repeating frequency." name="repeat">
+<option value="1">Day</option>
+<option value="2">2 Days</option>
+<option value="3">3 Days</option>
+<option value="4">4 Days</option>
+<option value="5">5 Days</option>
+<option value="6">6 Days</option>
+<option value="7">Week</option>
+<option value="8">Every 8 Days</option>
+<option value="9">Every 9 Days</option>
+<option value="10">Every 10 Days</option>
+<option value="14">2 Weeks</option>
+<option value="21">3 Weeks</option>
+<option value="28">4 Weeks</option>
+</select>
+</td>
+<td>On:</td><td title="Limit to these days of the week">
+<input type="checkbox" name="dow1" checked>Sun
+<input type="checkbox" name="dow2" checked>Mon
+<input type="checkbox" name="dow3" checked>Tue
+<input type="checkbox" name="dow4" checked>Wed<br>
+<input type="checkbox" name="dow5" checked>Thu
+<input type="checkbox" name="dow6" checked>Fri
+<input type="checkbox" name="dow7" checked>Sat
+</td></tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>

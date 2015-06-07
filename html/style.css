@@ -11,8 +11,28 @@ body {
 	border-radius: 5px;
 	border: 2px solid #000000;
 	#width: 800px;
-	font-size: 200%;
 	margin: 0 auto;
 	padding: 20px
 }
-
+#main.alt {
+	background-color: #606060;
+	border: 1px solid #000000;
+}
+.sched, .config {
+	margin-top: 5px;
+	padding: 5px;
+	border: 1px solid black;
+	background-color: #d0d0FF;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+.date, .time, .duration, .repeat, .zone, .name, .zoffset {
+	height: 2em;
+}
+.invalid {
+	color: red;
+}
+#curtime, #devname {
+	color: white;
+}

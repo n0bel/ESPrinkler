@@ -160,9 +160,9 @@ static void ICACHE_FLASH_ATTR resetTimerCb(void *arg) {
 	int x=wifi_station_get_connect_status();
 	if (x==STATION_GOT_IP) {
 		//Go to STA mode. This needs a reset, so do that.
-		os_printf("Got IP. Going into STA mode..\n");
-		wifi_set_opmode(1);
-		system_restart();
+		os_printf("Got IP. Going into STA+AP mode..\n");
+		wifi_set_opmode(3);
+		start_reset(); //system_restart();
 	} else {
 		connTryStatus=CONNTRY_FAIL;
 		os_printf("Connect fail. Not going into STA-only mode.\n");
@@ -240,7 +240,7 @@ int ICACHE_FLASH_ATTR cgiWiFiSetMode(HttpdConnData *connData) {
 		os_printf("cgiWifiSetMode: %s\n", buff);
 #ifndef DEMO_MODE
 		wifi_set_opmode(atoi(buff));
-		system_restart();
+		start_reset(); //system_restart();
 #endif
 	}
 	httpdRedirect(connData, "/wifi");
@@ -286,12 +286,21 @@ int ICACHE_FLASH_ATTR tplWlan(HttpdConnData *connData, char *token, void **arg) 
 	if (token==NULL) return HTTPD_CGI_DONE;
 	wifi_station_get_config(&stconf);
 
+
 	os_strcpy(buff, "Unknown");
 	if (os_strcmp(token, "WiFiMode")==0) {
 		x=wifi_get_opmode();
 		if (x==1) os_strcpy(buff, "Client");
 		if (x==2) os_strcpy(buff, "SoftAP");
 		if (x==3) os_strcpy(buff, "STA+AP");
+	} else if (os_strcmp(token, "WiFiSTAIP")==0) {
+		struct ip_info ipconfig;
+	    wifi_get_ip_info(STATION_IF, &ipconfig);
+	    os_sprintf(buff,IPSTR,IP2STR(&ipconfig.ip));
+	} else if (os_strcmp(token, "WiFiAPIP")==0) {
+		struct ip_info ipconfig;
+	    wifi_get_ip_info(SOFTAP_IF, &ipconfig);
+	    os_sprintf(buff,IPSTR,IP2STR(&ipconfig.ip));
 	} else if (os_strcmp(token, "currSsid")==0) {
 		os_strcpy(buff, (char*)stconf.ssid);
 	} else if (os_strcmp(token, "WiFiPasswd")==0) {
@@ -299,9 +308,9 @@ int ICACHE_FLASH_ATTR tplWlan(HttpdConnData *connData, char *token, void **arg) 
 	} else if (os_strcmp(token, "WiFiapwarn")==0) {
 		x=wifi_get_opmode();
 		if (x==2) {
-			os_strcpy(buff, "<b>Can't scan in this mode.</b> Click <a href=\"setmode.cgi?mode=3\">here</a> to go to STA+AP mode.");
+			os_strcpy(buff, "<b>Can't scan in AP mode.</b> Click <a href=\"setmode.cgi?mode=3\">here</a> to go to STA+AP mode.");
 		} else {
-			os_strcpy(buff, "Click <a href=\"setmode.cgi?mode=2\">here</a> to go to standalone AP mode.");
+			os_strcpy(buff, "Click for <a href=\"setmode.cgi?mode=1\">STA Mode</a>, <a href=\"setmode.cgi?mode=3\">STA+AP Mode</a> or, <a href=\"setmode.cgi&mode=2\">AP Mode</a>.");
 		}
 	}
 	httpdSend(connData, buff, -1);

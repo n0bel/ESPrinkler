@@ -1,0 +1,115 @@
+<html>
+<head><title>Configuration</title>
+<link rel="stylesheet" type="text/css" href="style.css">
+<script src="jquery.min.js"></script>
+<script>
+$(function() {
+
+	getconfig();
+
+	$('#bmain').click(function(event) {
+		location.href='/';
+	});
+	
+	$('#load').click(function(event) {
+		getconfig();
+	});
+
+	$('#zset').click(function(event) {
+		var offset = new Date().getTimezoneOffset();
+		$('[name=zoffset]').val(offset*-60);
+		
+	});
+
+	$('#sreset').click(function(event) {
+		var res = { reset: 'yes' };
+		//alert( JSON.stringify(res) );
+		$.ajax({
+			url: 'config.cgi',
+			type: "POST",
+			data: JSON.stringify(res),
+			contentType: "application/json",
+			dataType: 'json',
+			success: rxdata
+		});
+
+	});
+
+	$('#save').click(function(event) {
+		var res = { config: {
+				name: $('[name=name]').val(),
+				zoffset: $('[name=zoffset]').val()
+		} };
+		//alert( JSON.stringify(res) );
+		$.ajax({
+			url: 'config.cgi',
+			type: "POST",
+			data: JSON.stringify(res),
+			contentType: "application/json",
+			dataType: 'json',
+			success: rxdata
+		});
+		$('#saving').show();
+		$('.config').hide();
+	});
+
+});
+
+function getconfig()
+{
+	$.ajax({
+		url: 'config.cgi',
+		type: "POST",
+		data: "{}",
+		contentType: "application/json",
+		dataType: 'json',
+		success: rxdata
+	});
+}
+
+function rxdata(data)
+{
+
+//	alert(JSON.stringify(data));
+	$('#saving').hide();
+	$('.config').show();
+	
+	if (data.reset)
+	{
+		alert(data.reset);
+		return;
+	}
+	
+	$('[name=name]').val('');
+	$('[name=zoffset]').val('0');
+	
+	if (data.config)
+	{
+		if (data.config.name)
+		{
+			$('[name=name]').val(data.config.name);
+		}
+		if (data.config.zoffset)
+		{
+			$('[name=zoffset]').val(data.config.zoffset);
+		}
+	}
+
+}
+
+</script>
+</head>
+<body>
+<div id=main class=alt>
+<button id=load>Load Configuration</button> | <button id=save>Save Configuration</button> | <button id=sreset>Reset Device</button> | <button id=bmain>Main Page</button>
+<div id=saving class=sched style="display:none">
+<center>Saving....</center>
+</div>
+<div class="config">
+<table class=schedtable>
+<tr><td>Device Name:</td><td><input class="name" title="The name of this device" type="text" name="name" size="30" value=""> (reset will be needed if changed)</td></tr>
+<tr><td>Timezone Offset (seconds):</td><td><input class="zoffset" title="The Timezone Offset in Secconds from UTC." type="text" name="zoffset" size="10" value=""><button id="zset">Set From Browser</button></td></tr>
+</table>
+</div>
+</div>
+</body></html>

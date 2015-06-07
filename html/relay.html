@@ -7,24 +7,6 @@ button, body { font-size: 15pt; }
 .on, .off { padding-left: 5pt; padding-right: 5pt; }
 .on { background-color: red; }
 .off { background-color: green; }
-#bmain { position: absolute; left: 2px; top: 2px; }
-#b1 { position: absolute; left: 199px; top: 251px; }
-#b2 { position: absolute; left: 430px; top: 140px; }
-#b3 { position: absolute; left: 307px; top: 210px; }
-#b4 { position: absolute; left: 441px; top: 180px; }
-#b5 { position: absolute; left: 480px; top: 100px; }
-#b6 { position: absolute; left: 130px; top: 260px; }
-#b7 { position: absolute; left: 70px; top: 320px; }
-#b8 { position: absolute; left: 100px; top: 320px; }
-#main {
-	background-image: url('house1.jpg');
-	background-repeat: no-repeat;
-	width: 500px;
-	height: 310px;
-	position: absolute;
-	left: 5px;
-	top: 5px;
-}
 </style>
 <script src="jquery.min.js"></script>
 <script language=javascript >
@@ -64,8 +46,8 @@ $(function() {
 
 </head>
 <body>
-<div id=main>
-<button id=bmain onclick="location.href='/';" >Main</button>
+<div id="main">
+<button id=bmain onclick="location.href='/';" >Main Page</button>
 <button id=b1 onclick="cl(this);" >1</button>
 <button id=b2 onclick="cl(this);" >2</button>
 <button id=b3 onclick="cl(this);" >3</button>

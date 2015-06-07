@@ -1,18 +1,19 @@
 <html>
-<head><title>Esp8266 web server</title>
+<head><title>Sprinkler</title>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 <div id="main">
-<h1>Sprinkler</h1>
+Sprinkler: Device Name: %myname%
 <p>
-This page has
-been loaded <b>%counter%</b> times.
+This page has been loaded <b>%counter%</b> times.
 <ul>
-<li>If you haven't connected this device to your WLAN network now, you can <a href="/wifi">do so.</a></li>
-<li>You can also control the <a href="house.html">Sprinklers</a>.</li>
-<li>You can also control the <a href="relay.tpl">Zones</a>.</li>
-<li>You can download the raw <a href="flash.bin">contents</a> of the SPI flash rom</li>
+<li><a href="/wifi">WLAN Setup</a></li>
+<li><a href="house.html">Graphic control of Sprinkler Zones</a>.</li>
+<li><a href="relay.html">Simple control of Sprinkler Zones</a>.</li>
+<li><a href="schedule.html">Schedule</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="flash.html">Flash update</a></li>
 </ul>
 </p>
 </div>

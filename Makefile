@@ -185,7 +185,7 @@ MODULES		= driver user httpd espfs
 EXTRA_INCDIR    = include $(SDK_BASE)/../include espfs .
 
 # libraries used in this project, mainly provided by the SDK
-LIBS		= c gcc hal phy pp net80211 lwip wpa main
+LIBS		= c gcc hal phy pp net80211 lwip wpa main json
 
 # compiler flags using during compilation of source files
 CFLAGS		= -Os -g -Wpointer-arith -Wundef -Werror -Wl,-EL -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH -DESPFS_POS=$(ESPFS_POS) -DESPFS_SIZE=$(ESPFS_SIZE)
@@ -376,6 +376,7 @@ else
 	$(Q) cd html; find | ../espfs/mkespfsimage/mkespfsimage > ../$(FW_BASE)/webpages.espfs; cd ..
 endif
 	$(vecho) $$(stat -c '%s' $(FW_BASE)/webpages.espfs) used of $$(( $(ESPFS_SIZE) )) $$(expr $$(stat -c '%s' $(FW_BASE)/webpages.espfs) '*' 100 / $$(( $(ESPFS_SIZE) )))% full
+
 
 flashinit:
 	$(vecho) "Flash init data:"
