@@ -1,4 +1,8 @@
 # ESPrinkler
+
+## Consider this OBSOLETE  The new version is https://github.com/n0bel/ESPrinkler2
+
+
 An ESP8266 based WiFi lawn/garden sprinkler control system.
 
 Work in progress alpha development
